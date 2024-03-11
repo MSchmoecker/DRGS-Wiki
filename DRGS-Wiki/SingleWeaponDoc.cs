@@ -20,7 +20,7 @@ public class SingleWeaponDoc : Doc {
         AddText($" | name = {weapon.Title} <!--String (mandatory)-->");
         AddText($" | image = {ImageName()} <!--Text-->");
         AddText($" | unlockedBy = {UnlockedBy()} <!--Text-->".Replace("  ", " "));
-        AddText($" | alwaysForClass = {AlwaysForClass()} <!--String (allowed values = Scout, Engineer, Gunner, Driller)-->");
+        AddText($" | alwaysForClass = {AlwaysForClass()} <!--String (allowed values = Scout, Engineer, Gunner, Driller)-->".Replace("  ", " "));
 
         AddText($"<!--Tags-->");
         AddText($" | damageTag = {GetDamageTags(Weapon)} <!--List (^) of String (allowed values = {GetDamageTags()})-->");
@@ -46,6 +46,10 @@ public class SingleWeaponDoc : Doc {
         AddText($" | weaponRange = {ConvertToString(Weapon.BaseRange)} <!--Float-->");
         AddText($" | hasKnockback = {ConvertToString(Weapon.KnockBack)} <!--String (allowed values = Yes, No)-->");
         AddText($" | minesTerrain = <!--String (allowed values = Yes, No)-->");
+
+        AddText($"<!--Overclocks-->");
+        AddText($" | balancedOC = {GetBalancedOverclocks()} <!--List (^) of String-->");
+        AddText($" | unstableOC = {GetUnstableOverclocks()} <!--List (^) of String-->");
 
         AddText("<!--Projectile only-->");
         if (projectileWeapon) {
@@ -74,10 +78,6 @@ public class SingleWeaponDoc : Doc {
         AddText($" | damagePerStack = <!--Integer-->");
         AddText($" | leavesPoolsOnGround = <!--String (allowed values = Yes, No)-->");
         AddText($" | puddleDuration = <!--Float-->");
-
-        AddText($"<!--Overclocks-->");
-        AddText($" | balancedOC = {GetBalancedOverclocks()} <!--List (^) of String-->");
-        AddText($" | unstableOC = {GetUnstableOverclocks()} <!--List (^) of String-->");
 
         AddText("<!--Lasting only-->");
         if (beamWeapon) {

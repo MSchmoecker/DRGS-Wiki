@@ -126,6 +126,7 @@ public class WeaponDoc : Doc {
         weapons.AddRange(Resources.FindObjectsOfTypeAll<ExplosionWeaponSkillData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<MeleeWeaponSkillData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<CoilGunWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<RocketSwarmWeaponData>());
 
         HashSet<SingleWeaponDoc> singleWeaponDocs = new HashSet<SingleWeaponDoc>();
         foreach (WeaponSkillData weapon in weapons.Where(w => !w.IsBoscoSkill && !w.name.StartsWith("Enemy"))) {
