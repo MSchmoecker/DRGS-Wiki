@@ -1,4 +1,8 @@
-﻿using HarmonyLib;
+﻿using System.Collections;
+using Assets.Scripts.Milestones;
+using Assets.Scripts.SkillSystem;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 
@@ -15,12 +19,12 @@ public class WeaponDoc : Doc {
     public class Patches {
         [HarmonyPatch(typeof(MenuAssetLoader), nameof(MenuAssetLoader.Awake))]
         [HarmonyPostfix]
-        public static void OnSceneLoaded() {
-            Instance.DocWeapons();
+        public static void OnSceneLoaded(MenuAssetLoader __instance) {
+            __instance.StartCoroutine(Instance.DocWeapons().WrapToIl2Cpp());
         }
     }
 
-    private static float GetFireRate(ProjectileWeaponSkillData weapon) {
+    public static float GetFireRate(ProjectileWeaponSkillData weapon) {
         switch (weapon.FireMode) {
             case WeaponSkillData.EFireMode.SINGLE:
                 return 1f / weapon.ShotInterval;
@@ -34,7 +38,7 @@ public class WeaponDoc : Doc {
         return 0f;
     }
 
-    private static float GetDPS(ProjectileWeaponSkillData weapon) {
+    public static float GetDPS(ProjectileWeaponSkillData weapon) {
         float damage = weapon.BaseDamage;
         float fireRate = GetFireRate(weapon);
         float clipSize = weapon.BaseClipSize;
@@ -43,14 +47,38 @@ public class WeaponDoc : Doc {
         return damage * fireRate * (clipSize / fireRate) / (clipSize / fireRate + reloadTime);
     }
 
-    private static float GetDPS(GrenadeWeaponSkillData weapon) {
+    public static float GetDPS(GrenadeWeaponSkillData weapon) {
         float damage = weapon.BaseDamage;
         float reloadTime = weapon.ReloadTime;
 
         return damage / reloadTime;
     }
 
-    public void DocWeapons() {
+    public IEnumerator DocWeapons() {
+        // we have to wait a few frames before the localization is properly loaded
+        for (int i = 0; i < 5; i++) {
+            yield return null;
+        }
+
+        Il2CppArrayBase<MilestoneData>? milestones = Resources.FindObjectsOfTypeAll<MilestoneData>();
+        Dictionary<string, MilestoneData> weaponMilestones = new Dictionary<string, MilestoneData>();
+
+        foreach (MilestoneData milestone in milestones) {
+            if (milestone.WeaponReward != null) {
+                weaponMilestones.TryAdd(milestone.WeaponReward.name, milestone);
+                Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {milestone.WeaponReward.name} {milestone.DescriptionText}");
+            }
+        }
+
+        foreach (MilestoneData milestone in milestones) {
+            if (milestone.ClassReward != null) {
+                foreach (WeaponSkillData defaultUnlockedWeapon in milestone.ClassReward.DefaultUnlockedWeapons) {
+                    weaponMilestones.TryAdd(defaultUnlockedWeapon.name, milestone);
+                    Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {defaultUnlockedWeapon.name} {milestone.DescriptionText}");
+                }
+            }
+        }
+
         Il2CppArrayBase<ProjectileWeaponSkillData>? projectileWeapons = Resources.FindObjectsOfTypeAll<ProjectileWeaponSkillData>();
         Plugin.Instance.Log.LogInfo($"Found {projectileWeapons.Length} projectile weapons");
 
@@ -58,9 +86,39 @@ public class WeaponDoc : Doc {
             projectileWeapons.Where(w => !w.IsBoscoSkill && !w.name.StartsWith("Enemy")),
             new string[] { "Name", "Damage", "Fire Rate", "Clip Size", "Reload Time", "DPS" },
             w => new object[] {
-                w.name, w.BaseDamage, $"{GetFireRate(w):0.00}/s", w.BaseClipSize, $"{w.ReloadTime}s", $"{GetDPS(w):0.00}"
+                w.Title, w.BaseDamage, $"{GetFireRate(w):0.00}/s", w.BaseClipSize, $"{w.ReloadTime}s", $"{GetDPS(w):0.00}"
             }
         );
+
+        List<WeaponSkillData> weapons = new List<WeaponSkillData>();
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<ArcProjectileWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<BoomerangWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<ProjectileWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<ShardDiffractorWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<BeamWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<DefenseDroneWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<SpawnWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<AuraWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<ExplosionWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<MeleeWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<CoilGunWeaponSkillData>());
+
+        HashSet<SingleWeaponDoc> singleWeaponDocs = new HashSet<SingleWeaponDoc>();
+        foreach (WeaponSkillData weapon in weapons.Where(w => !w.IsBoscoSkill && !w.name.StartsWith("Enemy"))) {
+            if (singleWeaponDocs.Any(w => w.Weapon.name == weapon.name)) {
+                continue;
+            }
+
+            try {
+                string title = weapon.Title;
+            } catch (Exception e) {
+                Plugin.Instance.Log.LogWarning($"Failed to get title for weapon {weapon.name}");
+                continue;
+            }
+
+            singleWeaponDocs.Add(new SingleWeaponDoc(weapon, weaponMilestones));
+        }
 
         Il2CppArrayBase<GrenadeWeaponSkillData>? grenadeWeapons = Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>();
         Plugin.Instance.Log.LogInfo($"Found {grenadeWeapons.Length} grenade weapons");
