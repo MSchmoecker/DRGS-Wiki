@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>DRGS_Wiki</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DRGS_PATH Condition="!Exists($(DRGS_PATH))">C:\Programme\Steam\steamapps\common\Deep Rock Survivor</DRGS_PATH>
+        <DRGS_PATH Condition="!Exists($(DRGS_PATH))">D:\Programme\Steam\steamapps\common\Deep Rock Survivor</DRGS_PATH>
+        <DRGS_PATH Condition="!Exists($(DRGS_PATH))">E:\Programme\Steam\steamapps\common\Deep Rock Survivor</DRGS_PATH>
+        <DRGS_PATH Condition="!Exists($(DRGS_PATH))">F:\Programme\Steam\steamapps\common\Deep Rock Survivor</DRGS_PATH>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony">
+            <HintPath>$(DRGS_PATH)\BepInEx\core\0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>$(DRGS_PATH)\BepInEx\interop\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx.Core">
+            <HintPath>$(DRGS_PATH)\BepInEx\core\BepInEx.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx.Unity.IL2CPP">
+            <HintPath>$(DRGS_PATH)\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx.Unity.Common">
+            <HintPath>$(DRGS_PATH)\BepInEx\core\BepInEx.Unity.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2CppInterop.Runtime">
+            <HintPath>$(DRGS_PATH)\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2Cppmscorlib">
+            <HintPath>$(DRGS_PATH)\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.Localization">
+            <HintPath>$(DRGS_PATH)\BepInEx\interop\Unity.Localization.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>$(DRGS_PATH)\BepInEx\interop\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>$(DRGS_PATH)\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(DRGS_PATH)\BepInEx\plugins\$(AssemblyName)"/>
+    </Target>
+</Project>
