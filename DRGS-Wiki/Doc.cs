@@ -54,7 +54,10 @@ public class Doc {
         } else if (row is float @float) {
             return @float.ToString(CultureInfo.InvariantCulture);
         } else if (row is Enum @enum) {
-            return @enum.ToString();
+            string enumString = @enum.ToString().ToLower().Replace("_", " ");
+            return enumString[..1].ToUpper() + enumString[1..]; // capitalize first letter
+        } else if (row is bool @bool) {
+            return @bool ? "Yes" : "No";
         }
 
         Plugin.Instance.Log.LogWarning($"Unknown type {row.GetType()} in table, using ToString()");

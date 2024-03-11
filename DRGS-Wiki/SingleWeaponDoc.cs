@@ -6,17 +6,21 @@ namespace DRGS_Wiki;
 public class SingleWeaponDoc : Doc {
     public WeaponSkillData Weapon { get; }
 
-    private Dictionary<string, MilestoneData> WeaponMilestones;
-
-    public SingleWeaponDoc(WeaponSkillData weapon, Dictionary<string, MilestoneData> weaponMilestones) : base($"weapons/{weapon.name}") {
+    public SingleWeaponDoc(WeaponSkillData weapon) : base($"weapons/{weapon.name}") {
         Plugin.Instance.Log.LogInfo($"Documenting weapon {weapon.name}");
         Weapon = weapon;
-        WeaponMilestones = weaponMilestones;
+
+        ProjectileWeaponSkillData projectileWeapon = weapon as ProjectileWeaponSkillData;
+        BeamWeaponSkillData beamWeapon = weapon as BeamWeaponSkillData;
+        DefenseDroneWeaponSkillData defenseDroneWeapon = weapon as DefenseDroneWeaponSkillData;
+        SpawnWeaponSkillData spawnWeapon = weapon as SpawnWeaponSkillData;
+        GrenadeWeaponSkillData grenadeWeapon = weapon as GrenadeWeaponSkillData;
 
         AddText("{{SurvivorWeaponsStats");
         AddText($" | name = {weapon.Title} <!--String (mandatory)-->");
         AddText($" | image = {ImageName()} <!--Text-->");
         AddText($" | unlockedBy = {UnlockedBy()} <!--Text-->".Replace("  ", " "));
+        AddText($" | alwaysForClass = {AlwaysForClass()} <!--String (allowed values = Scout, Engineer, Gunner, Driller)-->");
 
         AddText($"<!--Tags-->");
         AddText($" | damageTag = {GetDamageTags(Weapon)} <!--List (^) of String (allowed values = {GetDamageTags()})-->");
@@ -27,40 +31,86 @@ public class SingleWeaponDoc : Doc {
         AddText($"<!--Base Stats-->");
         AddText($" | damage = {ConvertToString((int)Weapon.BaseDamage)} <!--Integer-->");
 
-        if (weapon is ProjectileWeaponSkillData projectileWeapon) {
+        if (projectileWeapon) {
             AddText($" | roF = {ConvertToString(WeaponDoc.GetFireRate(projectileWeapon))} <!--Float-->");
             AddText($" | clipSize = {ConvertToString(projectileWeapon.BaseClipSize)} <!--Integer-->");
+        } else if (grenadeWeapon) {
+            AddText($" | roF = {ConvertToString(WeaponDoc.GetFireRate(grenadeWeapon))} <!--Float-->");
+            AddText($" | clipSize = <!--Integer-->");
+        } else {
+            AddText($" | roF = <!--Float-->");
+            AddText($" | clipSize = <!--Integer-->");
         }
 
         AddText($" | reloadTime = {ConvertToString(Weapon.ReloadTime)} <!--Float-->");
         AddText($" | weaponRange = {ConvertToString(Weapon.BaseRange)} <!--Float-->");
+        AddText($" | hasKnockback = {ConvertToString(Weapon.KnockBack)} <!--String (allowed values = Yes, No)-->");
+        AddText($" | minesTerrain = <!--String (allowed values = Yes, No)-->");
+
+        AddText("<!--Projectile only-->");
+        if (projectileWeapon) {
+            AddText($" | nbrOfProjectiles = {ConvertToString(WeaponDoc.GetNrOfProjectiles(projectileWeapon))} <!--Integer-->");
+            AddText($" | firingPattern = {ConvertToString(projectileWeapon.FireMode)} <!--String-->");
+            AddText($" | burstSize = {ConvertToString(projectileWeapon.FireMode == WeaponSkillData.EFireMode.BURST ? projectileWeapon.BurstShots : 0)} <!--Integer-->");
+            AddText($" | pierceNumber = <!--Integer-->");
+        } else {
+            AddText($" | nbrOfProjectiles = <!--Integer-->");
+            AddText($" | firingPattern = <!--String-->");
+            AddText($" | burstSize = <!--Integer-->");
+            AddText($" | pierceNumber = <!--Integer-->");
+        }
+
+        AddText("<!--Grenade only-->");
+        if (grenadeWeapon) {
+            AddText($" | triggerType = {ConvertToString(grenadeWeapon.TriggerType)} <!--String-->");
+            AddText($" | fuseTime = {ConvertToString(grenadeWeapon.BaseFuseTime)} <!--Float-->");
+        } else {
+            AddText($" | triggerType = <!--String-->");
+            AddText($" | fuseTime = <!--Float-->");
+        }
+
+        AddText("<!--Status effect only-->");
+        AddText($" | nbrOfStacks = <!--Integer-->");
+        AddText($" | damagePerStack = <!--Integer-->");
+        AddText($" | leavesPoolsOnGround = <!--String (allowed values = Yes, No)-->");
+        AddText($" | puddleDuration = <!--Float-->");
 
         AddText($"<!--Overclocks-->");
         AddText($" | balancedOC = {GetBalancedOverclocks()} <!--List (^) of String-->");
         AddText($" | unstableOC = {GetUnstableOverclocks()} <!--List (^) of String-->");
 
-        BeamWeaponSkillData beamWeapon = weapon as BeamWeaponSkillData;
-        DefenseDroneWeaponSkillData defenseDroneWeapon = weapon as DefenseDroneWeaponSkillData;
-        SpawnWeaponSkillData spawnWeapon = weapon as SpawnWeaponSkillData;
-
-        if (beamWeapon || defenseDroneWeapon || spawnWeapon) {
-            AddText("<!--Lasting-->");
-            AddText($" | duration = {ConvertToString(beamWeapon?.BaseLifeTime ?? defenseDroneWeapon?.BaseLifeTime ?? spawnWeapon?.SpawnLifeTime)} <!--Float-->");
-        }
-
-        if (spawnWeapon) {
-            AddText("<!--Turret-->");
-            AddText($" | carryCapacity = {ConvertToString(spawnWeapon.MaxCharges)} <!--Integer-->");
-        }
-
+        AddText("<!--Lasting only-->");
         if (beamWeapon) {
-            AddText("<!--Beam-->");
-            AddText($" | beamCount = {ConvertToString(beamWeapon.BeamCount)} <!--Integer-->");
+            AddText($" | lifeTime = {ConvertToString(beamWeapon.BaseLifeTime)} <!--Float-->");
+        } else if (defenseDroneWeapon) {
+            AddText($" | lifeTime = {ConvertToString(defenseDroneWeapon.BaseLifeTime)} <!--Float-->");
+        } else if (spawnWeapon) {
+            AddText($" | lifeTime = {ConvertToString(spawnWeapon.SpawnLifeTime)} <!--Float-->");
+        } else {
+            AddText($" | lifeTime = <!--Float-->");
         }
 
+        AddText("<!--Turret only-->");
+        if (spawnWeapon) {
+            AddText($" | carryCapacity = {ConvertToString(spawnWeapon.MaxCharges)} <!--Integer-->");
+        } else {
+            AddText($" | carryCapacity = <!--Integer-->");
+        }
+
+        AddText("<!--Beam only-->");
+        if (beamWeapon) {
+            AddText($" | beamCount = {ConvertToString(beamWeapon.BeamCount)} <!--Integer-->");
+            AddText($" | tickInterval = {ConvertToString(beamWeapon.TickInterval)} <!--Float-->");
+        } else {
+            AddText($" | beamCount = <!--Integer-->");
+            AddText($" | tickInterval = <!--Float-->");
+        }
+
+        AddText("<!--Drone only-->");
         if (defenseDroneWeapon) {
-            AddText("<!--Drone-->");
             AddText($" | droneCount = {ConvertToString(defenseDroneWeapon.DroneCount)} <!--Integer-->");
+        } else {
+            AddText($" | droneCount = <!--Integer-->");
         }
 
         AddText("}}");
@@ -79,7 +129,7 @@ public class SingleWeaponDoc : Doc {
     }
 
     private string UnlockedBy() {
-        if (WeaponMilestones.TryGetValue(Weapon.name, out MilestoneData milestone)) {
+        if (WeaponDoc.weaponMilestones.TryGetValue(Weapon.name, out MilestoneData milestone)) {
             if (milestone.ClassRequirement != null) {
                 return $"{milestone.ClassRequirement.DisplayName} Class Rank {milestone.Target}";
             }
@@ -89,6 +139,14 @@ public class SingleWeaponDoc : Doc {
             }
 
             return milestone.DescriptionText;
+        }
+
+        return "";
+    }
+
+    private string AlwaysForClass() {
+        if (WeaponDoc.defaultUnlockedWeapons.TryGetValue(Weapon.name, out string className)) {
+            return className;
         }
 
         return "";

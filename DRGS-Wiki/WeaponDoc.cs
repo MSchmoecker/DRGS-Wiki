@@ -24,6 +24,20 @@ public class WeaponDoc : Doc {
         }
     }
 
+    public static int GetNrOfProjectiles(ProjectileWeaponSkillData weapon) {
+        switch (weapon.FireMode) {
+            case WeaponSkillData.EFireMode.SINGLE:
+                return 1;
+            case WeaponSkillData.EFireMode.BURST:
+                return 1 + weapon.BurstShots;
+            default:
+                Plugin.Instance.Log.LogWarning($"Unknown fire mode {weapon.FireMode} for weapon {weapon.name}");
+                break;
+        }
+
+        return 1;
+    }
+
     public static float GetFireRate(ProjectileWeaponSkillData weapon) {
         switch (weapon.FireMode) {
             case WeaponSkillData.EFireMode.SINGLE:
@@ -36,6 +50,10 @@ public class WeaponDoc : Doc {
         }
 
         return 0f;
+    }
+
+    public static float GetFireRate(GrenadeWeaponSkillData weapon) {
+        return 1f / weapon.ReloadTime;
     }
 
     public static float GetDPS(ProjectileWeaponSkillData weapon) {
@@ -54,6 +72,9 @@ public class WeaponDoc : Doc {
         return damage / reloadTime;
     }
 
+    public static Dictionary<string, MilestoneData> weaponMilestones = new Dictionary<string, MilestoneData>();
+    public static Dictionary<string, string> defaultUnlockedWeapons = new Dictionary<string, string>();
+
     public IEnumerator DocWeapons() {
         // we have to wait a few frames before the localization is properly loaded
         for (int i = 0; i < 5; i++) {
@@ -61,7 +82,8 @@ public class WeaponDoc : Doc {
         }
 
         Il2CppArrayBase<MilestoneData>? milestones = Resources.FindObjectsOfTypeAll<MilestoneData>();
-        Dictionary<string, MilestoneData> weaponMilestones = new Dictionary<string, MilestoneData>();
+        weaponMilestones.Clear();
+        defaultUnlockedWeapons.Clear();
 
         foreach (MilestoneData milestone in milestones) {
             if (milestone.WeaponReward != null) {
@@ -74,6 +96,7 @@ public class WeaponDoc : Doc {
             if (milestone.ClassReward != null) {
                 foreach (WeaponSkillData defaultUnlockedWeapon in milestone.ClassReward.DefaultUnlockedWeapons) {
                     weaponMilestones.TryAdd(defaultUnlockedWeapon.name, milestone);
+                    defaultUnlockedWeapons.TryAdd(defaultUnlockedWeapon.name, milestone.ClassReward.DisplayName);
                     Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {defaultUnlockedWeapon.name} {milestone.DescriptionText}");
                 }
             }
@@ -117,7 +140,7 @@ public class WeaponDoc : Doc {
                 continue;
             }
 
-            singleWeaponDocs.Add(new SingleWeaponDoc(weapon, weaponMilestones));
+            singleWeaponDocs.Add(new SingleWeaponDoc(weapon));
         }
 
         Il2CppArrayBase<GrenadeWeaponSkillData>? grenadeWeapons = Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>();
