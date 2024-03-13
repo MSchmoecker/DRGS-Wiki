@@ -52,7 +52,7 @@ public class Doc {
         } else if (row is int @int) {
             return @int.ToString();
         } else if (row is float @float) {
-            return @float.ToString(CultureInfo.InvariantCulture);
+            return (Mathf.Round(@float * 100f) / 100f).ToString(CultureInfo.InvariantCulture);
         } else if (row is Enum @enum) {
             string enumString = @enum.ToString().ToLower().Replace("_", " ");
             return enumString[..1].ToUpper() + enumString[1..]; // capitalize first letter

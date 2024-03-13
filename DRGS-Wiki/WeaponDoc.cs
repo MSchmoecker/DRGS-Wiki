@@ -25,6 +25,8 @@ public class WeaponDoc : Doc {
     }
 
     public static int GetNrOfProjectiles(ProjectileWeaponSkillData weapon) {
+        return weapon.FireConfigs.Length;
+
         switch (weapon.FireMode) {
             case WeaponSkillData.EFireMode.SINGLE:
                 return 1;
@@ -88,7 +90,7 @@ public class WeaponDoc : Doc {
         foreach (MilestoneData milestone in milestones) {
             if (milestone.WeaponReward != null) {
                 weaponMilestones.TryAdd(milestone.WeaponReward.name, milestone);
-                Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {milestone.WeaponReward.name} {milestone.DescriptionText}");
+                Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {milestone.WeaponReward.name} {SingleWeaponDoc.UnlockedBy(milestone.WeaponReward)}");
             }
         }
 
@@ -97,7 +99,7 @@ public class WeaponDoc : Doc {
                 foreach (WeaponSkillData defaultUnlockedWeapon in milestone.ClassReward.DefaultUnlockedWeapons) {
                     weaponMilestones.TryAdd(defaultUnlockedWeapon.name, milestone);
                     defaultUnlockedWeapons.TryAdd(defaultUnlockedWeapon.name, milestone.ClassReward.DisplayName);
-                    Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {defaultUnlockedWeapon.name} {milestone.DescriptionText}");
+                    Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {defaultUnlockedWeapon.name} {SingleWeaponDoc.UnlockedBy(milestone.WeaponReward)}");
                 }
             }
         }
@@ -121,6 +123,7 @@ public class WeaponDoc : Doc {
         weapons.AddRange(Resources.FindObjectsOfTypeAll<BeamWeaponSkillData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<DefenseDroneWeaponSkillData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<SpawnWeaponSkillData>());
+        weapons.AddRange(Resources.FindObjectsOfTypeAll<GroundzoneGrenadeWeaponData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<AuraWeaponSkillData>());
         weapons.AddRange(Resources.FindObjectsOfTypeAll<ExplosionWeaponSkillData>());
