@@ -13,12 +13,16 @@ public class Doc {
     private StreamWriter writer;
 
     public Doc(string filePath, string fileFormat = "wiki") {
-        FilePath = Path.Combine(BaseDir, "data", $"{filePath}.{fileFormat}");
+        FilePath = MakeLegalPath(Path.Combine(BaseDir, "data", $"{filePath}.{fileFormat}"));
 
         // create directory if it doesn't exist
         Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
 
         writer = File.CreateText(FilePath);
+    }
+
+    private string MakeLegalPath(string path) {
+        return string.Join("_", path.Split(Path.GetInvalidPathChars()));
     }
 
     public void AddText(string text) {

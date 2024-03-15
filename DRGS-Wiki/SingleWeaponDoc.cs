@@ -7,7 +7,7 @@ namespace DRGS_Wiki;
 public class SingleWeaponDoc : Doc {
     public WeaponSkillData Weapon { get; }
 
-    public SingleWeaponDoc(WeaponSkillData weapon) : base($"weapons/{weapon.name}") {
+    public SingleWeaponDoc(WeaponSkillData weapon) : base($"weapons/{weapon.Title.Replace("\"", "")}_{weapon.name}") {
         Plugin.Instance.Log.LogInfo($"Documenting weapon {weapon.name}");
         Weapon = weapon;
 
