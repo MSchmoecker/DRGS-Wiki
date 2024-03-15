@@ -74,8 +74,17 @@ public class WeaponDoc : Doc {
         return damage / reloadTime;
     }
 
+    public static Dictionary<string, WeaponSkillData> weapons = new Dictionary<string, WeaponSkillData>();
     public static Dictionary<string, MilestoneData> weaponMilestones = new Dictionary<string, MilestoneData>();
     public static Dictionary<string, string> defaultUnlockedWeapons = new Dictionary<string, string>();
+
+    public static T GetWeapon<T>(string name) where T : WeaponSkillData {
+        if (weapons.TryGetValue(name, out WeaponSkillData weapon) && weapon is T) {
+            return (T)weapon;
+        }
+
+        return null;
+    }
 
     public IEnumerator DocWeapons() {
         // we have to wait a few frames before the localization is properly loaded
@@ -84,6 +93,7 @@ public class WeaponDoc : Doc {
         }
 
         Il2CppArrayBase<MilestoneData>? milestones = Resources.FindObjectsOfTypeAll<MilestoneData>();
+        weapons.Clear();
         weaponMilestones.Clear();
         defaultUnlockedWeapons.Clear();
 
@@ -115,28 +125,28 @@ public class WeaponDoc : Doc {
             }
         );
 
-        List<WeaponSkillData> weapons = new List<WeaponSkillData>();
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<ArcProjectileWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<BoomerangWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<ProjectileWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<ShardDiffractorWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<BeamWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<DefenseDroneWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<SpawnWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<GroundzoneGrenadeWeaponData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<AuraWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<ExplosionWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<MeleeWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<CoilGunWeaponSkillData>());
-        weapons.AddRange(Resources.FindObjectsOfTypeAll<RocketSwarmWeaponData>());
+        List<WeaponSkillData> loadedWeapons = new List<WeaponSkillData>();
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ArcProjectileWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<BoomerangWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ImpactAxeSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ProjectileWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ShardDiffractorWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<BeamWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<DefenseDroneWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<SpawnWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<GroundzoneGrenadeWeaponData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<AuraWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ExplosionWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<MeleeWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<CoilGunWeaponSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<RocketSwarmWeaponData>());
 
-        HashSet<SingleWeaponDoc> singleWeaponDocs = new HashSet<SingleWeaponDoc>();
-        foreach (WeaponSkillData weapon in weapons.Where(w => !w.IsBoscoSkill && !w.name.StartsWith("Enemy"))) {
-            if (singleWeaponDocs.Any(w => w.Weapon.name == weapon.name)) {
-                continue;
-            }
+        foreach (WeaponSkillData weapon in loadedWeapons.Where(w => !w.IsBoscoSkill && !w.name.StartsWith("Enemy"))) {
+            weapons.TryAdd(weapon.name, weapon);
+        }
 
+        foreach (WeaponSkillData weapon in weapons.Values) {
             try {
                 string title = weapon.Title;
             } catch (Exception e) {
@@ -144,7 +154,7 @@ public class WeaponDoc : Doc {
                 continue;
             }
 
-            singleWeaponDocs.Add(new SingleWeaponDoc(weapon));
+            new SingleWeaponDoc(weapon);
         }
 
         Il2CppArrayBase<GrenadeWeaponSkillData>? grenadeWeapons = Resources.FindObjectsOfTypeAll<GrenadeWeaponSkillData>();

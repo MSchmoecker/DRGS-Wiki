@@ -32,7 +32,11 @@ public class SingleWeaponDoc : Doc {
         AddText($" | typeTag = {GetTypeTags(Weapon)} <!--List (^) of String (allowed values = {GetTypeTags()})-->".Replace("  ", " "));
 
         AddText($"<!--Base Stats-->");
-        AddText($" | damage = {ConvertToString((int)Weapon.BaseDamage)} <!--Integer-->");
+        if (spawnWeapon && spawnWeapon.SpawnWeaponSkill) {
+            AddText($" | damage = {ConvertToString((int)spawnWeapon.SpawnWeaponSkill.BaseDamage)} <!--Integer-->");
+        } else {
+            AddText($" | damage = {ConvertToString((int)Weapon.BaseDamage)} <!--Integer-->");
+        }
 
         if (projectileWeapon) {
             AddText($" | roF = {ConvertToString(WeaponDoc.GetFireRate(projectileWeapon))} <!--Float-->");
@@ -40,6 +44,10 @@ public class SingleWeaponDoc : Doc {
         } else if (grenadeWeapon) {
             AddText($" | roF = {ConvertToString(WeaponDoc.GetFireRate(grenadeWeapon))} <!--Float-->");
             AddText($" | clipSize = 1 <!--Integer-->");
+        } else if (spawnWeapon && spawnWeapon.SpawnWeaponSkill && WeaponDoc.GetWeapon<ProjectileWeaponSkillData>(spawnWeapon.SpawnWeaponSkill.name)) {
+            ProjectileWeaponSkillData spawnWeaponProjectile = WeaponDoc.GetWeapon<ProjectileWeaponSkillData>(spawnWeapon.SpawnWeaponSkill.name);
+            AddText($" | roF = {ConvertToString(WeaponDoc.GetFireRate(spawnWeaponProjectile))} <!--Float-->");
+            AddText($" | clipSize = {ConvertToString(spawnWeaponProjectile.BaseClipSize)} <!--Integer-->");
         } else {
             AddText($" | roF = <!--Float-->");
             AddText($" | clipSize = <!--Integer-->");
@@ -152,6 +160,11 @@ public class SingleWeaponDoc : Doc {
         if (title.Contains("Arc-Tek")) return "Cryo Drone";
         if (title.Contains("ArmsKore")) return "Coilgun";
         if (title.Contains("Wave Cooker")) return "Wave Cooker";
+        if (title.Contains("High Explosive Grenade")) return "HE Grenade";
+        if (title.Contains("Subata 120")) return "Subata";
+        if (title.Contains("Boomstick")) return "Boomstick";
+        if (title.Contains("LMG Gun Platform")) return "LMG Turret";
+        if (title.Contains("Lead Storm")) return "Leadstorm";
 
         Regex quotes = new Regex("\"[^\"]*\"");
         if (quotes.IsMatch(title)) {
@@ -187,9 +200,8 @@ public class SingleWeaponDoc : Doc {
     }
 
     private string FirePattern(ProjectileWeaponSkillData weapon) {
-        if (weapon.name.Contains("Warthog")) {
-            return "Shotgun";
-        }
+        if (weapon.name.Contains("Warthog")) return "Shotgun";
+        if (weapon.name.Contains("Boomstick")) return "Shotgun";
 
         return ConvertToString(weapon.FireMode);
     }
