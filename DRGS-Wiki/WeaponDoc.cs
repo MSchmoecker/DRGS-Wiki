@@ -129,6 +129,7 @@ public class WeaponDoc : Doc {
         loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ArcProjectileWeaponSkillData>());
         loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<BoomerangWeaponSkillData>());
         loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ImpactAxeSkillData>());
+        loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<LinkProjectileSkillData>());
         loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ProjectileWeaponSkillData>());
         loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<ShardDiffractorWeaponSkillData>());
         loadedWeapons.AddRange(Resources.FindObjectsOfTypeAll<BeamWeaponSkillData>());

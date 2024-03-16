@@ -165,6 +165,22 @@ public class SingleWeaponDoc : Doc {
         if (title.Contains("Boomstick")) return "Boomstick";
         if (title.Contains("LMG Gun Platform")) return "LMG Turret";
         if (title.Contains("Lead Storm")) return "Leadstorm";
+        if (title.Contains("Corrosive Sludge Pump")) return "Sludge Pump";
+        if (title.Contains("CRSPR Flamethrower")) return "CRSPR";
+        if (title.Contains("Deepcore GK2")) return "GK2";
+        if (title.Contains("Experimental Plasma Charger")) return "EPC";
+        if (title.Contains("Firefly Hunter Drone")) return "Fire Drone";
+        if (title.Contains("Hi-Volt Thunderbird")) return "Eletrical Drone";
+        if (title.Contains("K1-P Viper Drone")) return "Viper Drones";
+        if (title.Contains("Krakatoa Sentinel")) return "Krakatoa Turret";
+        if (title.Contains("Plasma Burster")) return "Plasmaburster";
+        if (title.Contains("DRAK-25 Plasma Carbine")) return "DRAK Carbine";
+        if (title.Contains("Nishanka Boltshark X-80")) return "Nishanka Boltshark";
+        if (title.Contains("Shredder Swarm Grenade")) return "Shredder Grenade";
+        if (title.Contains("Tactical LeadBurster")) return "Leadburster";
+        if (title.Contains("TH-0R Bug Taser")) return "THOR Bugzapper";
+        if (title.Contains("Voltaic Shock Fence")) return "Voltaic Fence";
+        if (title.Contains("Zhukov NUK17")) return "Zhukovs";
 
         Regex quotes = new Regex("\"[^\"]*\"");
         if (quotes.IsMatch(title)) {
@@ -277,7 +293,7 @@ public class SingleWeaponDoc : Doc {
         return string.Join("^", Weapon.BalancedOverclocks.Select(o => o.Title
             .Replace("A little more oomph!", "A Little More Oomph!")
             .Replace("Tape some nails to it", "Tape Some Nails to It")
-            .Replace("Behaviour Chip : Aggro", "Behaviour Chip: Aggro")
+            .Replace("Behaviour Chip :", "Behaviour Chip:")
             .Trim()
         ));
     }
