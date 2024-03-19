@@ -102,14 +102,14 @@ public class WeaponDoc : Doc {
         defaultUnlockedWeapons.Clear();
 
         foreach (MilestoneData milestone in milestones) {
-            if (milestone.WeaponReward != null) {
+            if (milestone.WeaponReward != null && milestone.RewardType == EMilestoneRewardType.UNLOCK_WEAPON) {
                 weaponMilestones.TryAdd(milestone.WeaponReward.name, milestone);
                 Plugin.Instance.Log.LogInfo($"Found milestone {milestone.name} for weapon {milestone.WeaponReward.name} {SingleWeaponDoc.UnlockedBy(milestone.WeaponReward)}");
             }
         }
 
         foreach (MilestoneData milestone in milestones) {
-            if (milestone.ClassReward != null) {
+            if (milestone.ClassReward != null && milestone.RewardType == EMilestoneRewardType.UNLOCK_CLASS) {
                 foreach (WeaponSkillData defaultUnlockedWeapon in milestone.ClassReward.DefaultUnlockedWeapons) {
                     weaponMilestones.TryAdd(defaultUnlockedWeapon.name, milestone);
                     defaultUnlockedWeapons.TryAdd(defaultUnlockedWeapon.name, milestone.ClassReward.DisplayName);
