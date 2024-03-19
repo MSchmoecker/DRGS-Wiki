@@ -21,7 +21,7 @@ public class SingleWeaponDoc : Doc {
         LinkProjectileSkillData linkWeapon = weapon as LinkProjectileSkillData;
 
         AddText("{{SurvivorWeaponsStats");
-        AddText($" | name = {weapon.Title} <!--String (mandatory)-->");
+        AddText($" | name = {weapon.Title.Replace("DRAK-25", "Drak-25")} <!--String (mandatory)-->");
         AddText($" | image = Survivor {ImageName()}.png <!--Text-->");
         AddText($" | unlockedBy = {UnlockedBy(Weapon)} <!--Text-->".Replace("  ", " "));
         AddText($" | alwaysForClass = {AlwaysForClass()} <!--String (allowed values = Scout, Engineer, Gunner, Driller)-->".Replace("  ", " "));
