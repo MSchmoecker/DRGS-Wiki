@@ -18,6 +18,7 @@ public class SingleWeaponDoc : Doc {
         GroundzoneGrenadeWeaponData grondZoneGrenadeWeapon = weapon as GroundzoneGrenadeWeaponData;
         GrenadeWeaponSkillData grenadeWeapon = weapon as GrenadeWeaponSkillData;
         CoilGunWeaponSkillData coilGunWeapon = weapon as CoilGunWeaponSkillData;
+        LinkProjectileSkillData linkWeapon = weapon as LinkProjectileSkillData;
 
         AddText("{{SurvivorWeaponsStats");
         AddText($" | name = {weapon.Title} <!--String (mandatory)-->");
@@ -134,6 +135,9 @@ public class SingleWeaponDoc : Doc {
         } else if (coilGunWeapon) {
             AddText($" | beamCount = 1 <!--Integer-->");
             AddText($" | tickInterval = {ConvertToString(coilGunWeapon.TickInterval)} <!--Float-->");
+        } else if (linkWeapon) {
+            AddText($" | beamCount = 1 <!--Integer-->");
+            AddText($" | tickInterval = {ConvertToString(linkWeapon.TickInterval)} <!--Float-->");
         } else {
             AddText($" | beamCount = <!--Integer-->");
             AddText($" | tickInterval = <!--Float-->");
@@ -212,12 +216,19 @@ public class SingleWeaponDoc : Doc {
             return className;
         }
 
+        if (WeaponDoc.weaponMilestones.TryGetValue(Weapon.name, out MilestoneData milestone)) {
+            if (milestone.ClassRequirement != null) {
+                return milestone.ClassRequirement.DisplayName;
+            }
+        }
+
         return "";
     }
 
     private string FirePattern(ProjectileWeaponSkillData weapon) {
         if (weapon.name.Contains("Warthog")) return "Shotgun";
         if (weapon.name.Contains("Boomstick")) return "Shotgun";
+        if (weapon.name.Contains("BreachCutter")) return "Linked Projectile";
 
         return ConvertToString(weapon.FireMode);
     }

@@ -25,6 +25,10 @@ public class WeaponDoc : Doc {
     }
 
     public static int GetNrOfProjectiles(ProjectileWeaponSkillData weapon) {
+        if (weapon is LinkProjectileSkillData linkWeapon) {
+            return 2;
+        }
+
         return weapon.FireConfigs.Length;
 
         switch (weapon.FireMode) {
