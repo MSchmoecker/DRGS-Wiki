@@ -56,7 +56,13 @@ public class SingleWeaponDoc : Doc {
 
         AddText($" | reloadTime = {ConvertToString(Weapon.ReloadTime)} <!--Float-->");
         AddText($" | weaponRange = {ConvertToString(Weapon.BaseRange)} <!--Float-->");
-        AddText($" | hasKnockback = {ConvertToString(Weapon.KnockBack)} <!--String (allowed values = Yes, No)-->");
+
+        if (spawnWeapon && spawnWeapon.SpawnPrefab && spawnWeapon.SpawnPrefab.weaponSkillData) {
+            AddText($" | hasKnockback = {ConvertToString(spawnWeapon.SpawnPrefab.weaponSkillData.KnockBack)} <!--String (allowed values = Yes, No)-->");
+        } else {
+            AddText($" | hasKnockback = {ConvertToString(Weapon.KnockBack)} <!--String (allowed values = Yes, No)-->");
+        }
+
         AddText($" | minesTerrain = <!--String (allowed values = Yes, No)-->");
 
         AddText($"<!--Overclocks-->");
