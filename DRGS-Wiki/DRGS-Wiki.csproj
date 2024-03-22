@@ -49,5 +49,6 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(DRGS_PATH)\BepInEx\plugins\$(AssemblyName)"/>
+        <Copy SourceFiles="$(SolutionDir)DRGS-Wiki/LoadWeapon.py" DestinationFolder="$(DRGS_PATH)\BepInEx\plugins\$(AssemblyName)\data"/>
     </Target>
 </Project>
